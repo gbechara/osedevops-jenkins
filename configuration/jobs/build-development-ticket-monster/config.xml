@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+    <actions/>
+    <description></description>
+    <keepDependencies>false</keepDependencies>
+    <properties/>
+    <scm class="hudson.scm.NullSCM"/>
+    <canRoam>true</canRoam>
+    <disabled>false</disabled>
+    <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+    <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+    <triggers/>
+    <concurrentBuild>false</concurrentBuild>
+    <builders>
+        <com.openshift.jenkins.plugins.pipeline.OpenShiftBuilder plugin="openshift-pipeline@1.0.12">
+            <apiURL></apiURL>
+            <namespace>development</namespace>
+            <authToken></authToken>
+            <verbose>false</verbose>
+            <bldCfg>eap-app</bldCfg>
+            <commitID></commitID>
+            <buildName></buildName>
+            <showBuildLogs>false</showBuildLogs>
+            <checkForTriggeredDeployments>false</checkForTriggeredDeployments>
+            <waitTime></waitTime>
+        </com.openshift.jenkins.plugins.pipeline.OpenShiftBuilder>
+    </builders>
+    <publishers>
+        <au.com.centrumsystems.hudson.plugin.buildpipeline.trigger.BuildPipelineTrigger plugin="build-pipeline-plugin@1.5.3.1">
+            <configs/>
+            <downstreamProjectNames>deploy-testing-ticket-monster</downstreamProjectNames>
+        </au.com.centrumsystems.hudson.plugin.buildpipeline.trigger.BuildPipelineTrigger>
+    </publishers>
+    <buildWrappers/>
+</project>
