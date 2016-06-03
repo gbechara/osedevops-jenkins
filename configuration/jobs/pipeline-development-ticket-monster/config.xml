@@ -15,7 +15,7 @@
             
             stage &apos;Deploy to testing&apos;
             echo &apos;Deploying to testing&apos;
-            deployTicketMonster(&apos;dev1&apos;, &apos;development&apos;, &apos;testing&apos;)
+            deployTicketMonster(&apos;test1&apos;, &apos;development&apos;, &apos;testing&apos;)
             
             stage &apos;Wait for approval&apos;
             input &apos;Approve to production?&apos;
@@ -36,8 +36,8 @@
             
             // Tag the ImageStream from an original project to force a deployment
             def deployTicketMonster(String user, String origProject, String project){
+            //sh &quot;oc policy add-role-to-user system:image-puller system:serviceaccount:${project}:default -n ${origProject}&quot;
             projectSet(user, project)
-            sh &quot;oc policy add-role-to-user system:image-puller system:serviceaccount:${project}:default -n ${origProject}&quot;
             sh &quot;oc tag ${origProject}/eap-app:latest ${project}/eap-app:latest&quot;
             appDeploy()
             }
