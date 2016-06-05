@@ -39,8 +39,8 @@ def deployTicketMonster(String user, String origProject, String project){
     //sh &quot;oc policy add-role-to-user system:image-puller system:serviceaccount:${project}:default -n ${origProject}&quot;
     projectSet(user, project)
     //sh &quot;oc tag ${origProject}/eap-app:latest ${project}/eap-app:latest&quot;
-    sh &quot;oc tag ${origProject}/eap-app:latest ${project}/eap-app:promote&quot;
-    appDeploy(origProject)
+    sh &quot;oc tag ${origProject}/eap-app:latest ${project}/eap-app:latest&quot;
+    appDeploy(project)
 }
 
 // Login and set the project
@@ -55,8 +55,8 @@ def projectSet(String user, String project){
 }
 
 // Deploy the project based on a existing ImageStream
-def appDeploy(String origProject){
-    sh &quot;oc new-app ${origProject}/eap-app:promote || echo &apos;Aplication already Exists&apos;&quot;
+def appDeploy(String project){
+    sh &quot;oc new-app ${project}/eap-app:latest || echo &apos;Aplication already Exists&apos;&quot;
     sh &quot;oc expose svc eap-app || echo &apos;Service already exposed&apos;&quot;
     //    sh &quot;oc new-app aloha -l app=aloha,hystrix.enabled=true || echo &apos;Aplication already Exists&apos;&quot;
     //    sh &quot;oc expose service aloha || echo &apos;Service already exposed&apos;&quot;
