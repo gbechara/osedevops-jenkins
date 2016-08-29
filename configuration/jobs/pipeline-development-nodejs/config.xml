@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.2">
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.2">
+    <script>node {
+    stage &apos;Build image and deploy in Dev&apos;
+    echo &apos;Building docker image and deploying to Dev&apos;
+    buildNodeJS(&apos;dev1&apos;,&apos;development&apos;)
+    
+    stage &apos;Wait for approval&apos;
+    input &apos;Approve to testing?&apos;
+    
+    stage &apos;Deploy to testing&apos;
+    echo &apos;Deploying to testing&apos;
+    deployNodeJS(&apos;test1&apos;, &apos;development&apos;, &apos;testing&apos;)
+    
+    stage &apos;Wait for approval&apos;
+    input &apos;Approve to production?&apos;
+    
+    stage &apos;Deploy to production&apos;
+    echo &apos;Deploying to prodution&apos;
+    deployNodeJS(&apos;test1&apos;, &apos;testing&apos;, &apos;production&apos;)
+}
+            
+// Creates a Build and triggers it, firt step using STI
+def buildNodeJS(String user, String project){
+    projectSet(user, project)
+    //sh &quot;oc delete istag development/nodejs-offline-example:promote&quot;
+    //sh &quot;oc delete istag testing/cakephp-offline:promote&quot;
+    sh &quot;oc new-build --binary --name=nodejs-offline-example -l app=nodejs-offline-example || echo &apos;Build exists&apos;&quot;
+    sh &quot;oc start-build nodejs-offline-example&quot;
+}
+
+// Tag the ImageStream from an original project to force a deployment
+def deployNodeJS(String user, String origProject, String project){
+    //sh &quot;oc policy add-role-to-user system:image-puller system:serviceaccount:${project}:default -n ${origProject}&quot;
+    projectSet(user, project)
+    //sh &quot;oc tag ${origProject}/nodejs-offline-example:latest ${project}/nodejs-offline-example:latest&quot;
+    sh &quot;oc tag ${origProject}/nodejs-offline-example:latest ${project}/nodejs-offline-example:latest&quot;
+    appDeploy(project)
+}
+
+// Login and set the project
+def projectSet(String user, String project){
+    // Use a credential called openshift-dev
+    // withCredentials([[$class: &apos;UsernamePasswordMultiBinding&apos;, credentialsId: &apos;dev1&apos;, usernameVariable: &apos;USERNAME&apos;, passwordVariable: &apos;PASSWORD&apos;]]) {
+    // sh &quot;oc login --insecure-skip-tls-verify=true -u $env.USERNAME -p $env.PASSWORD https://10.1.2.2:8443&quot;
+    sh &quot;oc login --insecure-skip-tls-verify=true -u ${user} -p ${user} https://ose-master.example.com:8443&quot;
+    //}
+    sh &quot;oc new-project ${project} || echo &apos;Project exists&apos;&quot;
+    sh &quot;oc project ${project}&quot;
+}
+
+// Deploy the project based on a existing ImageStream
+def appDeploy(String project){
+    sh &quot;oc new-app ${project}/nodejs-offline-example:latest || echo &apos;Aplication already Exists&apos;&quot;
+    sh &quot;oc expose svc nodejs-offline-example || echo &apos;Service already exposed&apos;&quot;
+    //    sh &quot;oc new-app aloha -l app=aloha,hystrix.enabled=true || echo &apos;Aplication already Exists&apos;&quot;
+    //    sh &quot;oc expose service aloha || echo &apos;Service already exposed&apos;&quot;
+    //    sh &apos;oc patch dc/aloha -p \&apos;{&quot;spec&quot;:{&quot;template&quot;:{&quot;spec&quot;:{&quot;containers&quot;:[{&quot;name&quot;:&quot;aloha&quot;,&quot;ports&quot;:[{&quot;containerPort&quot;: 8778,&quot;name&quot;:&quot;jolokia&quot;}]}]}}}}\&apos;&apos;
+    //    sh &apos;oc patch dc/aloha -p \&apos;{&quot;spec&quot;:{&quot;template&quot;:{&quot;spec&quot;:{&quot;containers&quot;:[{&quot;name&quot;:&quot;aloha&quot;,&quot;readinessProbe&quot;:{&quot;httpGet&quot;:{&quot;path&quot;:&quot;/api/health&quot;,&quot;port&quot;:8080}}}]}}}}\&apos;&apos;
+}
+</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+</flow-definition>
