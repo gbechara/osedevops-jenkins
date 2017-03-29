@@ -57,7 +57,7 @@ def projectSet(String user, String project){
 // Deploy the project based on a existing ImageStream
 def appDeploy(String project){
     sh &quot;oc -n ${project} new-app ${project}/cakephp-offline:latest || echo &apos;Aplication already Exists&apos;&quot;
-    sh &quot;oc expose svc cakephp-offline || echo &apos;Service already exposed&apos;&quot;
+    sh &quot;oc -n ${project} expose svc cakephp-offline || echo &apos;Service already exposed&apos;&quot;
     //    sh &quot;oc new-app aloha -l app=aloha,hystrix.enabled=true || echo &apos;Aplication already Exists&apos;&quot;
     //    sh &quot;oc expose service aloha || echo &apos;Service already exposed&apos;&quot;
     //    sh &apos;oc patch dc/aloha -p \&apos;{&quot;spec&quot;:{&quot;template&quot;:{&quot;spec&quot;:{&quot;containers&quot;:[{&quot;name&quot;:&quot;aloha&quot;,&quot;ports&quot;:[{&quot;containerPort&quot;: 8778,&quot;name&quot;:&quot;jolokia&quot;}]}]}}}}\&apos;&apos;
